@@ -2333,7 +2333,10 @@ def token_iter(ctx: "Wtp", text: str) -> Iterator[tuple[bool, str]]:
             continue
         # Partition on ''+, so that we can detect bold/italics
         parts = balance_apostrophes(re.split(parts_re, line))
-        state = 0  # 1=in italic, 2=in bold, 3=in both
+        # Bit flags: 1 = in italic, 2 = in bold, 3 = in both, 0 = neither.
+        # Each marker opens its tag if closed and closes it if open, so XOR
+        # toggles the flag: ^= 1 flips italic, ^= 2 bold, ^= 3 both.
+        state = 0
         for i, part in enumerate(parts):
             # Markers are at the odd indices; go by index, since an even part
             # can now start with apostrophes that are literal text.
